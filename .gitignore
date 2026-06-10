@@ -1,0 +1,18 @@
+# Dependency directories
+node_modules/
+
+# Build outputs
+dist/
+
+# Downloaded installers & drivers (large binaries)
+bts_me25_w112/
+me25_w11d_v101DL/
+
+# External collections / assets
+Guitar Rig Presets Collection/
+
+# Temporary / OS / Tool files
+.antigravitycli/
+Thumbs.db
+.DS_Store
+*.log

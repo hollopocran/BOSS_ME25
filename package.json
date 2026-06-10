@@ -1,0 +1,17 @@
+{
+  "name": "boss-me25-editor",
+  "version": "1.0.0",
+  "description": "BOSS ME-25 Web Editor & Librarian",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "package": "electron-packager . BOSS_ME25_Editor --platform=win32 --arch=x64 --out=dist --overwrite"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^30.0.0",
+    "electron-packager": "^17.1.2"
+  }
+}

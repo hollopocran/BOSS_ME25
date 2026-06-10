@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BOSS ME-25 Web Editor & Librarian</title>
+    <!-- Google Fonts Outfit -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Barra de Título Customizada (Estilo Dark/Neon) - Usada apenas no modo biblioteca -->
+    <div class="custom-title-bar">
+        <div class="title-bar-logo">🎸</div>
+        <div class="title-bar-title" id="titleBarText">BOSS ME-25 Web Editor & Librarian</div>
+        <div class="title-bar-actions">
+            <button id="btnWindowMinimize" title="Minimizar" class="title-btn">&#9472;</button>
+            <button id="btnWindowMaximize" title="Maximizar/Restaurar" class="title-btn">&#9634;</button>
+            <button id="btnWindowClose" title="Fechar" class="title-btn close-btn">&times;</button>
+        </div>
+    </div>
+
+    <!-- Header Principal (Integrado como Barra de Título no modo editor) -->
+    <header>
+        <div class="logo-container">
+            <h1 class="logo-text">BOSS ME-25</h1>
+            <span class="logo-badge">Editor & Sniffer</span>
+            <div style="display: flex; align-items: center; gap: 6px;">
+                <span id="statusDot" class="status-dot"></span>
+                <span id="statusText" style="font-size: 0.8rem; font-weight: bold; color: var(--text-muted);">Aguardando Conexão</span>
+            </div>
+        </div>
+
+        <!-- Cadeia de Efeitos Compacta (Signal Flow) no Cabeçalho -->
+        <div class="signal-flow-compact">
+            <span class="flow-node active" id="flowGuitar" title="Guitar Input">🎸</span>
+            <span class="flow-arrow">➔</span>
+            <span class="flow-node" id="flowComp" data-card="cardComp" title="Compressor / FX">CMP</span>
+            <span class="flow-arrow">➔</span>
+            <span class="flow-node" id="flowOdds" data-card="cardOdds" title="Overdrive / Distortion">OD</span>
+            <span class="flow-arrow">➔</span>
+            <span class="flow-node" id="flowPreamp" data-card="cardPreamp" title="Amp COSM Preamp">PRE</span>
+            <span class="flow-arrow">➔</span>
+            <span class="flow-node" id="flowModulation" data-card="cardModulation" title="Modulation">MOD</span>
+            <span class="flow-arrow">➔</span>
+            <span class="flow-node" id="flowDelay" data-card="cardDelay" title="Delay">DLY</span>
+            <span class="flow-arrow">➔</span>
+            <span class="flow-node" id="flowReverb" data-card="cardReverb" title="Reverb">REV</span>
+            <span class="flow-arrow">➔</span>
+            <span class="flow-node active" id="flowOutput" title="Saída Amplificador">🔊</span>
+        </div>
+
+        <div class="header-actions" style="display: flex; align-items: center; gap: 12px;">
+            <!-- Barra de Pesquisa de Efeitos -->
+            <div class="effects-search-container" id="effectsSearchContainer">
+                <input type="text" id="effectSearchInput" placeholder="🔍 Pesquisar efeito (ex: Fuzz, Chorus)..." autocomplete="off">
+                <span id="btnClearEffectSearch" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 0.85rem; color: var(--text-muted); cursor: pointer; display: none; user-select: none;">&times;</span>
+                <div class="effects-search-results" id="effectsSearchResults" style="display: none;"></div>
+            </div>
+            <button id="btnSettings" class="settings-btn">⚙️ Configurações</button>
+            
+            <!-- Window controls integrated inside the header actions -->
+            <div class="header-window-controls">
+                <button id="btnHeaderMinimize" title="Minimizar" class="header-win-btn">&#9472;</button>
+                <button id="btnHeaderMaximize" title="Maximizar/Restaurar" class="header-win-btn">&#9634;</button>
+                <button id="btnHeaderClose" title="Fechar" class="header-win-btn close-btn">&times;</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-window-wrapper">
+
+    <div class="app-container">
+        <!-- Sidebar Esquerda - Biblioteca de Patches -->
+        <aside class="sidebar">
+            <!-- Informações do Patch Atual -->
+            <div class="sidebar-panel">
+                <div class="panel-title">Patch Ativo</div>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <label for="patchNameInput">Nome do Patch</label>
+                    <input type="text" id="patchNameInput" class="input-name" value="New Patch" maxlength="16">
+                    <div id="patchStatusBadge" style="font-size: 0.7rem; color: #f1c40f; font-weight: bold; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; text-align: center;">⚡ Modo Audição (Temp)</div>
+                    
+                    <div style="display: flex; gap: 6px; margin-top: 5px;">
+                        <button id="btnSendAll" style="flex: 1; font-size: 0.75rem; justify-content: center; padding: 8px;">📤 Sinc Pedal</button>
+                        <button id="btnRequestPatch" style="flex: 1; font-size: 0.75rem; justify-content: center; padding: 8px; background: #27114c;">📥 Ler Pedal</button>
+                    </div>
+                    
+                    <div style="margin-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 10px; display: flex; flex-direction: column; gap: 6px;">
+                        <label for="saveSlotSelect">Gravar no Slot (PC)</label>
+                        <select id="saveSlotSelect" style="width: 100%; font-size: 0.8rem; padding: 6px 10px;">
+                            <!-- Populado dinamicamente no JS (U01-1 a U10-3) -->
+                        </select>
+                        <button id="btnWriteToSlot" style="width: 100%; font-size: 0.75rem; justify-content: center; padding: 8px; background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);">💾 Gravar no Slot</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Biblioteca de Timbres (Abas) -->
+            <div class="sidebar-panel" style="flex-grow: 1; min-height: 380px; display: flex; flex-direction: column;">
+                <div class="panel-title" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>📚 Biblioteca</span>
+                    <span id="btnPopupLibrary" style="cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-muted); transition: all 0.2s ease;" title="Abrir em popup">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M15 9V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h4"></path>
+                        </svg>
+                    </span>
+                </div>
+                
+                <div id="libraryContentWrapper" style="display: flex; flex-direction: column; flex-grow: 1;">
+                    <!-- Barra de Pesquisa de Timbres -->
+                    <div class="search-container">
+                        <input type="text" id="librarySearchInput" placeholder="🔍 Pesquisar na biblioteca...">
+                        <span id="btnClearSearch">&times;</span>
+                    </div>
+
+                    <div class="tab-header">
+                        <button class="tab-btn active" data-tab="tabFactory">🎸 Fábrica</button>
+                        <button class="tab-btn" data-tab="tabCloud">☁️ Nuvem</button>
+                        <button class="tab-btn" id="tabFxBtn" data-tab="tabFx" style="display: none;">📁 Pastas</button>
+                    </div>
+
+                    <div class="tab-content" id="tabFactory" style="flex-grow: 1; display: flex; flex-direction: column;">
+                        <div id="factoryPatchesList" class="patch-list" style="max-height: 280px; overflow-y: auto;">
+                            <!-- Gerado dinamicamente no JS -->
+                        </div>
+                    </div>
+
+                    <div class="tab-content" id="tabCloud" style="flex-grow: 1; display: none; flex-direction: column;">
+                        <div id="cloudPatchesList" class="patch-list" style="max-height: 280px; overflow-y: auto;">
+                            <!-- Preenchido dinamicamente via JS -->
+                        </div>
+                    </div>
+
+                    <div class="tab-content" id="tabFx" style="flex-grow: 1; display: none; flex-direction: column;">
+                        <div id="fxPatchesList" class="patch-list" style="max-height: 280px; overflow-y: auto;">
+                            <!-- Preenchido via JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Painel Central - Ajustes de Efeitos (Effects Chain) -->
+        <main class="effects-grid">
+            <!-- 1. COMP/FX -->
+            <section class="effect-card disabled" id="cardComp">
+                <div class="card-header">
+                    <h3 class="effect-title">COMP / FX</h3>
+                    <label class="switch-container">
+                        <input type="checkbox" id="compSwitch">
+                        <span class="slider-toggle"></span>
+                    </label>
+                </div>
+                <div class="card-content">
+                    <div class="param-row">
+                        <span class="param-name">Efeito</span>
+                        <select id="compType" style="grid-column: span 2;">
+                            <option value="0">Compressor (COMP)</option>
+                            <option value="1">T.Wah Up</option>
+                            <option value="2">T.Wah Down</option>
+                            <option value="3">Slow Gear</option>
+                            <option value="4">Defretter</option>
+                            <option value="5">Single > Hum</option>
+                            <option value="6">Hum > Single</option>
+                            <option value="7">Solo (COMP BOOST)</option>
+                        </select>
+                    </div>
+                    <div class="param-row">
+                        <span class="param-name">Sustain/Sens</span>
+                        <input type="range" id="compSustain" min="0" max="99" value="50">
+                        <span class="param-value" id="compSustainVal">50</span>
+                    </div>
+                    <div class="param-row">
+                        <span class="param-name">Attack/Tone</span>
+                        <input type="range" id="compAttack" min="0" max="99" value="50">
+                        <span class="param-value" id="compAttackVal">50</span>
+                    </div>
+                    <div class="param-row">
+                        <span class="param-name">Level</span>
+                        <input type="range" id="compLevel" min="0" max="99" value="50">
+                        <span class="param-value" id="compLevelVal">50</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. OD/DS -->
+            <section class="effect-card disabled" id="cardOdds">
+                <div class="card-header">
+                    <h3 class="effect-title">OD / DS</h3>
+                    <label class="switch-container">
+                        <input type="checkbox" id="oddsSwitch">
+                        <span class="slider-toggle"></span>
+                    </label>
+                </div>
+                <div class="card-content">
+                    <div class="param-row">
+                        <span class="param-name">Tipo</span>
+                        <select id="oddsType" style="grid-column: span 2;">
+                            <option value="0">BOOST</option>
+                            <option value="1">OD-1 (Overdrive)</option>
+                            <option value="2">T-SCREAM (Tube Screamer)</option>
+                            <option value="3">BLUES (Blues Driver)</option>
+                            <option value="4">DIST (Distortion)</option>
+                            <option value="5">CLASSIC (Vintage Dist)</option>
+                            <option value="6">MODERN (High Gain Dist)</option>
+                            <option value="7">METAL (Metal Zone)</option>
+                            <option value="8">CORE (Extreme Dist)</option>
+                            <option value="9">FUZZ</option>
+                        </select>
+                    </div>
+                    <div class="param-row">
+                        <span class="param-name">Drive</span>
+                        <input type="range" id="oddsDrive" min="0" max="99" value="50">
+                        <span class="param-value" id="oddsDriveVal">50</span>
+                    </div>
+                    <div class="param-row">
+                        <span class="param-name">Tone</span>
+                        <input type="range" id="oddsTone" min="0" max="99" value="50">
+                        <span class="param-value" id="oddsToneVal">50</span>
+                    </div>
+                    <div class="param-row">
+                        <span class="param-name">Level</span>
+                        <input type="range" id="oddsLevel" min="0" max="99" value="50">
+                        <span class="param-value" id="oddsLevelVal">50</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. PREAMP -->
+            <section class="effect-card disabled" id="cardPreamp">
+                <div class="card-header">
+                    <h3 class="effect-title">PREAMP (COSM Amp)</h3>
+                    <label class="switch-container">
+                        <input type="checkbox" id="preSwitch">
+                        <span class="slider-toggle"></span>
+                    </label>
+                </div>
+                <div class="card-content">
+                    <div class="param-row">
+                        <span class="param-name">Amp Model</span>
+                        <select id="preType" style="grid-column: span 2;">
+                            <option value="0">CLEAN</option>
+                            <option value="1">TWIN (Fender Twin Reverb)</option>
+                            <option value="2">TWEED (Fender Bassman)</option>
+                            <option value="3">CRUNCH (Vox AC30 / Matchless)</option>
+                            <option value="4">COMBO (Marshall Bluesbreaker)</option>
+                            <option value="5">DRIVE (Marshall Stack)</option>
+                            <option value="6">STACK (Mesa/Boogie Rectifier)</option>
+                            <option value="7">METAL (Peavey 5150)</option>
+                            <option value="8">LEAD (Boss Custom High Gain)</option>
+                            <option value="9">EXTREME (Modern Heavy Lead)</option>
+                        </select>
+                    </div>
+                    <div class="param-row">
+                        <span class="param-name">Gain</span>
+                        <input type="range" id="preGain" min="0" max="99" value="50">
+                        <span class="param-value" id="preGainVal">50</span>
+                    </div>
+                    <div class="param-row">
+                        <span class="param-name">Bass</span>
+                        <input type="range" id="preBass" min="0" max="99" value="50">
+                        <span class="param-value" id="preBassVal">50</span>
+                    </div>
+                    <div class="param-row">
+                        <span class="param-name">Middle</span>
+                        <input type="range" id="preMiddle" min="0" max="99" value="50">
+                        <span class="param-value" id="preMiddleVal">50</span>
+                    </div>
+                    <div class="param-row">
+                        <span class="param-name">Treble</span>
+                        <input type="range" id="preTreble" min="0" max="99" value="50">
+                        <span class="param-value" id="preTrebleVal">50</span>
+                    </div>
+                    <div class="param-row">
+                        <span class="param-name">Presence</span>
+                        <input type="range" id="prePresence" min="0" max="99" value="50">
+                        <span class="param-value" id="prePresenceVal">50</span>
+                    </div>
+                    <div class="param-row">
+                        <span class="param-name">Level</span>
+                        <input type="range" id="preLevel" min="0" max="99" value="50">
+                        <span class="param-value" id="preLevelVal">50</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. MODULATION -->
+            <section class="effect-card disabled" id="cardModulation">
+                <div class="card-header">
+                    <h3 class="effect-title">MODULATION</h3>
+                    <label class="switch-container">
+                        <input type="checkbox" id="modSwitch">
+                        <span class="slider-toggle"></span>
+                    </label>
+                </div>
+                <div class="card-content">
+                    <div class="param-row">
+                        <span class="param-name">Tipo</span>
+                        <select id="modType" style="grid-column: span 2;">
+                            <option value="0">CHORUS</option>
+                            <option value="1">FLANGER</option>
+                            <option value="2">PHASER</option>
+                            <option value="3">TREMOLO</option>
+                            <option value="4">ROTARY</option>
+                            <option value="5">UNI-V</option>
+                            <option value="6">HARMONIST</option>
+                            <option value="7">DELAY</option>
+                        </select>
+                    </div>
+                    <div class="param-row">
+                        <span class="param-name">Rate/Key</span>
+                        <input type="range" id="modRate" min="0" max="99" value="40">
+                        <span class="param-value" id="modRateVal">40</span>
+                    </div>
+                    <div class="param-row">
+                        <span class="param-name">Depth/Harm</span>
+                        <input type="range" id="modDepth" min="0" max="99" value="50">
+                        <span class="param-value" id="modDepthVal">50</span>
+                    </div>
+                    <div class="param-row">
+                        <span class="param-name">Level</span>
+                        <input type="range" id="modLevel" min="0" max="99" value="50">
+                        <span class="param-value" id="modLevelVal">50</span>
+                    </div>
+                    <div class="param-row">
+                        <span class="param-name">Resonance</span>
+                        <input type="range" id="modParam4" min="0" max="99" value="55">
+                        <span class="param-value" id="modParam4Val">55</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. DELAY -->
+            <section class="effect-card disabled" id="cardDelay">
+                <div class="card-header">
+                    <h3 class="effect-title">DELAY</h3>
+                    <label class="switch-container">
+                        <input type="checkbox" id="delaySwitch">
+                        <span class="slider-toggle"></span>
+                    </label>
+                </div>
+                <div class="card-content">
+                    <!-- Manter tipo e intervalo padrão -->
+                    <select id="delayType" style="display: none;"><option value="1"></option></select>
+                    
+                    <div class="param-row">
+                        <span class="param-name">Tempo</span>
+                        <input type="range" id="delayTimeCombined" min="1" max="6000" value="350">
+                        <span class="param-value" id="delayTimeCombinedVal" style="font-size: 0.75rem;">350 ms</span>
+                    </div>
+                    <div class="param-row">
+                        <span class="param-name">Feedback</span>
+                        <input type="range" id="delayFeedback" min="0" max="99" value="50">
+                        <span class="param-value" id="delayFeedbackVal">50</span>
+                    </div>
+                    <div class="param-row">
+                        <span class="param-name">Level</span>
+                        <input type="range" id="delayLevel" min="0" max="120" value="110">
+                        <span class="param-value" id="delayLevelVal">110</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. REVERB -->
+            <section class="effect-card" id="cardReverb">
+                <div class="card-header">
+                    <h3 class="effect-title">REVERB</h3>
+                    <!-- O Reverb é controlado por nível (deslizar para 0 desliga) -->
+                </div>
+                <div class="card-content">
+                    <div class="param-row">
+                        <span class="param-name">Tipo</span>
+                        <select id="reverbType" style="grid-column: span 2;">
+                            <option value="0">ROOM</option>
+                            <option value="1">HALL</option>
+                        </select>
+                    </div>
+                    <div class="param-row">
+                        <span class="param-name">Decay</span>
+                        <input type="range" id="reverbDecay" min="0" max="99" value="35">
+                        <span class="param-value" id="reverbDecayVal">35</span>
+                    </div>
+                    <div class="param-row">
+                        <span class="param-name">Level</span>
+                        <input type="range" id="reverbLevel" min="0" max="99" value="30">
+                        <span class="param-value" id="reverbLevelVal">30</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7. EXPRESSION PEDAL / SOLO / NS -->
+            <section class="effect-card" id="cardGlobals">
+                <div class="card-header">
+                    <h3 class="effect-title">PEDAL / SOLO / EQ</h3>
+                </div>
+                <div class="card-content">
+                    <div class="param-row">
+                        <span class="param-name">Pedal FX</span>
+                        <select id="pedalFxType" style="grid-column: span 2;">
+                            <option value="0">Volume (Pedal FX OFF)</option>
+                            <option value="1">WAH (Wah-Wah)</option>
+                            <option value="2">+1 OCTAVE (Pitch Bend Up)</option>
+                            <option value="3">-1 OCTAVE (Pitch Bend Down)</option>
+                            <option value="4">FREEZE (Pedal Hold)</option>
+                        </select>
+                    </div>
+                    <div class="param-row">
+                        <span class="param-name">Solo Boost</span>
+                        <label class="switch-container">
+                            <input type="checkbox" id="soloSwitch">
+                            <span class="slider-toggle"></span>
+                        </label>
+                    </div>
+                    <div class="param-row">
+                        <span class="param-name">Super Stack</span>
+                        <label class="switch-container">
+                            <input type="checkbox" id="superStack">
+                            <span class="slider-toggle"></span>
+                        </label>
+                    </div>
+                    <div class="param-row">
+                        <span class="param-name">Noise Gate</span>
+                        <input type="range" id="nsThreshold" min="0" max="99" value="5">
+                        <span class="param-value" id="nsThresholdVal">5</span>
+                    </div>
+                    <div class="param-row">
+                        <span class="param-name">Master Vol</span>
+                        <input type="range" id="masterVol" min="0" max="99" value="99">
+                        <span class="param-value" id="masterVolVal">99</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 8. MODO DAW / INTERFACE USB -->
+            <section class="effect-card" id="cardDawMode" style="border: 1px dashed rgba(0, 210, 255, 0.4); background: linear-gradient(135deg, rgba(9, 12, 16, 0.95) 0%, rgba(0, 210, 255, 0.03) 100%);">
+                <div class="card-header">
+                    <h3 class="effect-title" style="color: #00d2ff; text-shadow: 0 0 10px rgba(0, 210, 255, 0.3);">🎙️ MODO DAW (Bypass)</h3>
+                    <label class="switch-container">
+                        <input type="checkbox" id="dawModeSwitch">
+                        <span class="slider-toggle" style="background-color: rgba(0, 210, 255, 0.2);"></span>
+                    </label>
+                </div>
+                <div class="card-content" style="display: flex; flex-direction: column; gap: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+                        <span class="param-name" style="font-size: 0.72rem; color: var(--text-muted);">Status da Simulação:</span>
+                        <span id="dawModeStatus" class="status-badge inactive" style="font-size: 0.68rem; font-weight: bold; padding: 2px 8px; border-radius: 4px; text-transform: uppercase;">Inativo</span>
+                    </div>
+                    <p style="font-size: 0.72rem; color: var(--text-muted); line-height: 1.4; margin: 0;">
+                        Bypassa todo o processamento físico da ME-25. Use para enviar o sinal limpo da guitarra para plugins no PC (Neural DSP, AmpliTube, etc.).
+                    </p>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px; border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 8px;">
+                        <span class="param-name" style="font-size: 0.72rem; color: var(--text-color); font-weight: bold;">🎸 Processar Áudio Local no PC</span>
+                        <label class="switch-container">
+                            <input type="checkbox" id="dawAudioLiveInputSwitch">
+                            <span class="slider-toggle"></span>
+                        </label>
+                    </div>
+                    <div style="border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 8px; font-size: 0.68rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 4px;">
+                        <span style="font-weight: bold; color: #00ff87;">💡 Como Funciona o Áudio Local:</span>
+                        <span>• <b>Bypass:</b> Use o preset <i>Direct / DAW Out</i> para som de guitarra limpo.</span>
+                        <span>• <b>Entrada:</b> Defina a BOSS ME-25 como microfone padrão no Windows.</span>
+                        <span>• <b>Processamento:</b> O software processa distorção, EQ, delay e reverb da sua guitarra ao vivo!</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal de Configurações -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content" style="max-height: 85vh; overflow-y: auto;">
+            <div class="modal-header">
+                <h2>⚙️ Configurações</h2>
+                <span class="close-btn" id="closeSettings">&times;</span>
+            </div>
+            <div class="modal-body">
+                <!-- Seção MIDI -->
+                <div class="settings-section">
+                    <h3>🔌 Conexão MIDI (Pedaleira)</h3>
+                    <div class="settings-row">
+                        <label for="midiInput">Entrada (In)</label>
+                        <select id="midiInput"><option value="">Aguardando conexão...</option></select>
+                    </div>
+                    <div class="settings-row">
+                        <label for="midiOutput">Saída (Out)</label>
+                        <select id="midiOutput"><option value="">Aguardando conexão...</option></select>
+                    </div>
+                    <div class="settings-row" style="display: flex; gap: 6px; margin-top: 15px; grid-column: span 2;">
+                        <button id="btnConnect" class="success" style="flex: 1; font-size: 0.75rem; justify-content: center; padding: 10px;">🔄 Reconectar MIDI</button>
+                        <button id="btnEditorOn" style="flex: 1; font-size: 0.75rem; justify-content: center; padding: 10px;">🚀 Ativar Modo Editor</button>
+                    </div>
+                </div>
+
+                <!-- Seção Áudio -->
+                <div class="settings-section">
+                    <h3>🔊 Áudio Virtual (Modo Teste)</h3>
+                    <p style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 12px; line-height: 1.4;">
+                        Toca um arpejo dedilhado limpo de guitarra localmente no PC para testar timbres e knobs sem guitarra conectada.
+                    </p>
+                    <button id="btnToggleAudioSim" style="width: 100%; font-size: 0.75rem; justify-content: center; padding: 10px; background: rgba(0, 210, 255, 0.1); border: 1px solid var(--primary-color); color: var(--primary-color); transition: all 0.3s ease;">🔊 Ouvir Áudio no PC: OFF</button>
+                </div>
+
+                <!-- Seção Librarian -->
+                <div class="settings-section">
+                    <h3>💾 Librarian (Backup / Restauração)</h3>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <button id="btnBackupAll" style="width: 100%; font-size: 0.75rem; justify-content: center; padding: 8px; background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);">📥 Backup Total (Ler 60)</button>
+                        <button id="btnRestoreAll" style="width: 100%; font-size: 0.75rem; justify-content: center; padding: 8px; background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);">📤 Restaurar Total (Gravar 60)</button>
+                        <div id="backupStatus" style="font-size: 0.7rem; color: var(--text-muted); text-align: center; margin-top: 4px; font-weight: bold;"></div>
+                    </div>
+                </div>
+
+                <!-- Seção Meus Tones -->
+                <div class="settings-section">
+                    <div class="panel-title" style="margin-bottom: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 6px; display: flex; justify-content: space-between; align-items: center; background: none; font-size: 0.85rem; font-weight: bold; color: var(--primary-color); text-transform: uppercase;">
+                        <span>📂 Meus Tones (Local)</span>
+                        <button id="btnSaveLocal" style="padding: 3px 8px; font-size: 0.7rem; background: var(--success-color); font-weight: bold; border-radius: 4px; cursor: pointer; border: none; color: white;">💾 Salvar Atual</button>
+                    </div>
+                    <div id="customPatchesList" class="patch-list" style="max-height: 140px; margin-bottom: 10px;">
+                        <!-- Gerado dinamicamente no JS -->
+                    </div>
+                    <div class="patch-actions" style="margin-top: 10px; display: flex; gap: 6px;">
+                        <button id="btnImport" style="background: rgba(255, 255, 255, 0.05); border: 1px solid var(--panel-border); font-size: 0.75rem; flex: 1; justify-content: center; padding: 8px; font-weight: bold; cursor: pointer;">📂 Importar .SYX</button>
+                        <button id="btnExport" style="background: rgba(255, 255, 255, 0.05); border: 1px solid var(--panel-border); font-size: 0.75rem; flex: 1; justify-content: center; padding: 8px; font-weight: bold; cursor: pointer;">💾 Exportar .SYX</button>
+                    </div>
+                </div>
+
+                <!-- Seção Monitor MIDI / Logs -->
+                <div class="settings-section">
+                    <h3>💻 Monitor MIDI / Logs</h3>
+                    <p style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 12px; line-height: 1.4;">
+                        Acompanhe a comunicação interna entre o computador e a pedaleira.
+                    </p>
+                    <button id="btnToggleFloatingLogs" style="width: 100%; font-size: 0.75rem; justify-content: center; padding: 10px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--panel-border); color: var(--text-color); transition: all 0.3s ease; font-weight: bold; cursor: pointer;">🖥️ Abrir Janela de Logs Flutuante</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Janela de Logs Flutuante -->
+    <div id="floatingLogsWindow" class="floating-window" style="display: none;">
+        <div class="floating-header" id="floatingLogsHeader">
+            <span class="floating-title">💻 Monitor de Comunicação (Tempo Real)</span>
+            <div class="floating-actions">
+                <button id="btnFloatingClearLog" style="padding: 2px 6px; font-size: 0.65rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; color: var(--text-color); cursor: pointer; font-weight: bold;">🗑️ Limpar</button>
+                <span class="floating-close" id="closeFloatingLogs">&times;</span>
+            </div>
+        </div>
+        <div id="consoleLog" class="console-log">
+            <!-- Entradas de logs formatadas (leigas e técnicas) -->
+        </div>
+    </div>
+</div>
+
+    <script src="app.js"></script>
+</body>
+</html>
