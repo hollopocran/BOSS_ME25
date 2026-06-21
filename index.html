@@ -57,6 +57,7 @@
                 <span id="btnClearEffectSearch" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 0.85rem; color: var(--text-muted); cursor: pointer; display: none; user-select: none;">&times;</span>
                 <div class="effects-search-results" id="effectsSearchResults" style="display: none;"></div>
             </div>
+            <button id="btnDoc" class="settings-btn" style="background: rgba(0, 210, 255, 0.12); color: var(--primary-color); border: 1px solid rgba(0, 210, 255, 0.3);">📄 Ajuda & Doc</button>
             <button id="btnSettings" class="settings-btn">⚙️ Configurações</button>
             
             <!-- Window controls integrated inside the header actions -->
@@ -97,9 +98,10 @@
             </div>
 
             <!-- Biblioteca de Timbres (Abas) -->
-            <div class="sidebar-panel" style="flex-grow: 1; min-height: 380px; display: flex; flex-direction: column;">
-                <div class="panel-title" style="display: flex; justify-content: space-between; align-items: center;">
-                    <span>📚 Biblioteca</span>
+            <!-- Biblioteca de Timbres (Abas) -->
+            <section class="sidebar-panel effect-card" id="libraryCardPanel" style="flex-grow: 1; min-height: 250px; display: flex; flex-direction: column;">
+                <div class="card-header panel-title" style="display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box; margin-bottom: 12px;">
+                    <span class="effect-title" style="margin: 0; text-transform: uppercase;">📚 Biblioteca</span>
                     <span id="btnPopupLibrary" style="cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-muted); transition: all 0.2s ease;" title="Abrir em popup">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                             <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
@@ -108,7 +110,7 @@
                     </span>
                 </div>
                 
-                <div id="libraryContentWrapper" style="display: flex; flex-direction: column; flex-grow: 1;">
+                <div class="card-content" id="libraryContentWrapper" style="display: flex; flex-direction: column; flex-grow: 1; min-height: 0; gap: 8px; width: 100%; box-sizing: border-box;">
                     <!-- Barra de Pesquisa de Timbres -->
                     <div class="search-container">
                         <input type="text" id="librarySearchInput" placeholder="🔍 Pesquisar na biblioteca...">
@@ -121,29 +123,38 @@
                         <button class="tab-btn" id="tabFxBtn" data-tab="tabFx" style="display: none;">📁 Pastas</button>
                     </div>
 
-                    <div class="tab-content" id="tabFactory" style="flex-grow: 1; display: flex; flex-direction: column;">
-                        <div id="factoryPatchesList" class="patch-list" style="max-height: 280px; overflow-y: auto;">
+                    <div class="tab-content" id="tabFactory" style="flex-grow: 1; display: flex; flex-direction: column; min-height: 0;">
+                        <div id="factoryPatchesList" class="patch-list" style="flex-grow: 1; overflow-y: auto;">
                             <!-- Gerado dinamicamente no JS -->
                         </div>
                     </div>
 
-                    <div class="tab-content" id="tabCloud" style="flex-grow: 1; display: none; flex-direction: column;">
-                        <div id="cloudPatchesList" class="patch-list" style="max-height: 280px; overflow-y: auto;">
+                    <div class="tab-content" id="tabCloud" style="flex-grow: 1; display: none; flex-direction: column; min-height: 0;">
+                        <div id="cloudPatchesList" class="patch-list" style="flex-grow: 1; overflow-y: auto;">
                             <!-- Preenchido dinamicamente via JS -->
                         </div>
                     </div>
 
-                    <div class="tab-content" id="tabFx" style="flex-grow: 1; display: none; flex-direction: column;">
-                        <div id="fxPatchesList" class="patch-list" style="max-height: 280px; overflow-y: auto;">
+                    <div class="tab-content" id="tabFx" style="flex-grow: 1; display: none; flex-direction: column; min-height: 0;">
+                        <div id="fxPatchesList" class="patch-list" style="flex-grow: 1; overflow-y: auto;">
                             <!-- Preenchido via JS -->
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
         </aside>
 
         <!-- Painel Central - Ajustes de Efeitos (Effects Chain) -->
-        <main class="effects-grid">
+        <main class="main-content">
+            <!-- Abas do Painel Principal -->
+            <div class="main-tabs">
+                <button class="main-tab-btn active" data-main-tab="effectsView">🎛️ Pedalboard (Efeitos)</button>
+                <button class="main-tab-btn" data-main-tab="studioView">🎙️ Modo Estúdio (Gravação & Stems)</button>
+            </div>
+
+            <!-- Visão 1: Grid de Efeitos -->
+            <div id="effectsView" class="main-tab-content active">
+                <div class="effects-grid">
             <!-- 1. COMP/FX -->
             <section class="effect-card disabled" id="cardComp">
                 <div class="card-header">
@@ -432,14 +443,21 @@
                     </div>
                 </div>
             </section>
+        </div>
+    </div>
 
+    <!-- Visão 2: Modo Estúdio (Gravação & Stems) -->
+    <div id="studioView" class="main-tab-content" style="display: none;">
+
+        
+        <div class="effects-grid">
             <!-- 8. MODO DAW / INTERFACE USB -->
-            <section class="effect-card" id="cardDawMode" style="border: 1px dashed rgba(0, 210, 255, 0.4); background: linear-gradient(135deg, rgba(9, 12, 16, 0.95) 0%, rgba(0, 210, 255, 0.03) 100%);">
+            <section class="effect-card" id="cardDawMode">
                 <div class="card-header">
-                    <h3 class="effect-title" style="color: #00d2ff; text-shadow: 0 0 10px rgba(0, 210, 255, 0.3);">🎙️ MODO DAW (Bypass)</h3>
+                    <h3 class="effect-title" style="text-shadow: 0 0 10px var(--primary-glow);">🎙️ MODO DAW (Bypass)</h3>
                     <label class="switch-container">
                         <input type="checkbox" id="dawModeSwitch">
-                        <span class="slider-toggle" style="background-color: rgba(0, 210, 255, 0.2);"></span>
+                        <span class="slider-toggle"></span>
                     </label>
                 </div>
                 <div class="card-content" style="display: flex; flex-direction: column; gap: 10px;">
@@ -450,22 +468,234 @@
                     <p style="font-size: 0.72rem; color: var(--text-muted); line-height: 1.4; margin: 0;">
                         Bypassa todo o processamento físico da ME-25. Use para enviar o sinal limpo da guitarra para plugins no PC (Neural DSP, AmpliTube, etc.).
                     </p>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px; border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px; border-top: 1px solid var(--panel-border); padding-top: 8px;">
                         <span class="param-name" style="font-size: 0.72rem; color: var(--text-color); font-weight: bold;">🎸 Processar Áudio Local no PC</span>
                         <label class="switch-container">
                             <input type="checkbox" id="dawAudioLiveInputSwitch">
                             <span class="slider-toggle"></span>
                         </label>
                     </div>
-                    <div style="border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 8px; font-size: 0.68rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 4px;">
-                        <span style="font-weight: bold; color: #00ff87;">💡 Como Funciona o Áudio Local:</span>
-                        <span>• <b>Bypass:</b> Use o preset <i>Direct / DAW Out</i> para som de guitarra limpo.</span>
-                        <span>• <b>Entrada:</b> Defina a BOSS ME-25 como microfone padrão no Windows.</span>
-                        <span>• <b>Processamento:</b> O software processa distorção, EQ, delay e reverb da sua guitarra ao vivo!</span>
+                    <details style="border-top: 1px solid var(--panel-border); padding-top: 8px; cursor: pointer; font-size: 0.68rem; color: var(--text-muted);">
+                        <summary style="font-weight: bold; color: var(--success-color); list-style: none; display: flex; align-items: center; gap: 4px; outline: none; user-select: none;">
+                            💡 Como Funciona o Áudio Local (Ajuda)
+                        </summary>
+                        <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 6px; padding-left: 4px;">
+                            <span>• <b>Bypass:</b> Use o preset <i>Direct / DAW Out</i> para som de guitarra limpo.</span>
+                            <span>• <b>Entrada:</b> Defina a BOSS ME-25 como microfone padrão no Windows.</span>
+                            <span>• <b>Processamento:</b> O software processa distorção, EQ, delay e reverb da sua guitarra ao vivo!</span>
+                        </div>
+                    </details>
+                </div>
+            </section>
+
+            <!-- 9. PLAYER & MIXER DE ACOMPANHAMENTO -->
+            <section class="effect-card" id="cardBackingPlayer" style="grid-column: span 2;">
+                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <h3 class="effect-title" style="margin: 0;">🎙️ Player & Mixer de Acompanhamento</h3>
+                    <span id="btnPopupPlayer" style="cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-muted); transition: all 0.2s ease;" title="Destacar Player">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M15 9V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h4"></path>
+                        </svg>
+                    </span>
+                </div>
+                <div class="card-content" style="display: flex; flex-direction: row; flex-wrap: nowrap; gap: 20px; width: 100%; box-sizing: border-box; overflow: hidden; padding: 0;">
+                    
+                    <!-- Lado Esquerdo: Separador e Player -->
+                    <div id="backingPlayerPanel" style="display: flex; flex-direction: column; gap: 12px; box-sizing: border-box; min-width: 300px; flex: 1;">
+                        <!-- SEPARADOR DE FAIXAS COM IA NATIVA -->
+                        <div id="stemSeparatorPanel" class="separator-panel" style="padding: 12px; gap: 8px;">
+                            <div class="separator-header" style="margin-bottom: 2px;">
+                                <span class="separator-title" style="font-size: 0.68rem;">🤖 SEPARADOR DE TRILHAS (IA)</span>
+                                <span class="separator-status" style="font-size: 0.58rem;">LOCAL / OFFLINE</span>
+                            </div>
+                            
+                            <!-- Drag & Drop Area -->
+                            <div id="stemDropzone" class="stem-dropzone" style="padding: 15px 10px;">
+                                <div class="dropzone-icon" style="font-size: 1.2rem;">📤</div>
+                                <div class="dropzone-text" style="font-size: 0.72rem;">Arraste um áudio ou clique para buscar</div>
+                                <div class="dropzone-subtext" style="font-size: 0.6rem;">MP3, WAV, FLAC, M4A</div>
+                                <div class="dropzone-file-info" style="display: none; margin-top: 4px;">
+                                    <span class="file-name" id="dropzoneFileName" style="font-size: 0.65rem;">Nenhum arquivo</span>
+                                </div>
+                            </div>
+                            <input type="text" id="stemInputFilePath" readonly style="display: none;">
+                            <input type="file" id="stemInputFile" accept=".mp3,.wav,.flac,.m4a,.aac" style="display: none;">
+                            
+                            <button id="btnSeparateStems" class="separate-btn" disabled style="margin-top: 4px; padding: 8px; font-size: 0.72rem;">
+                                ✨ Separar Stems (IA)
+                            </button>
+                            
+                            <!-- Progresso de Processamento -->
+                            <div id="stemProgressWrapper" class="progress-wrapper" style="display: none; margin-top: 4px;">
+                                <div class="progress-bar-container" style="height: 6px;">
+                                    <div id="stemProgressBar" class="progress-bar"></div>
+                                </div>
+                                <span id="stemProgressMsg" class="progress-msg" style="font-size: 0.6rem;">Aguardando...</span>
+                            </div>
+                            
+                            <!-- Painel de Resultados -->
+                            <div id="stemResultPanel" class="result-panel" style="display: none; margin-top: 4px; padding: 6px; align-items: center; justify-content: space-between; gap: 8px;">
+                                <div id="backingFileName" class="backing-file-name" style="font-size: 0.65rem; flex-grow: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">✅ Stems extraídos!</div>
+                                <button id="btnSaveToLibrary" class="bp3-btn-action" style="font-size: 0.62rem; padding: 3px 6px; border-radius: 4px; background: rgba(46, 204, 113, 0.15); color: #2ecc71; border: 1px solid rgba(46, 204, 113, 0.3); cursor: pointer; flex-shrink: 0;" title="Salvar faixa separada na biblioteca local">
+                                    💾 Salvar
+                                </button>
+                            </div>
+                        </div>
+
+
+
+                        <!-- PLAYER DE ACOMPANHAMENTO (Redesign v3) -->
+                        <div class="backing-player-v3" style="margin-top: 0; padding: 12px; border: 1px solid var(--panel-border); border-radius: 12px; background: rgba(0,0,0,0.1); box-sizing: border-box;">
+                            <!-- Faixa ativa -->
+                            <div class="bp3-track-bar" style="margin-bottom: 8px;">
+                                <div class="bp3-wave-icon" id="playerTrackIcon">
+                                    <span class="bp3-bar bp3-b1"></span>
+                                    <span class="bp3-bar bp3-b2"></span>
+                                    <span class="bp3-bar bp3-b3"></span>
+                                    <span class="bp3-bar bp3-b4"></span>
+                                    <span class="bp3-bar bp3-b5"></span>
+                                </div>
+                                <img id="playerTrackCover" src="" style="display: none; width: 32px; height: 32px; border-radius: 4px; object-fit: cover; border: 1px solid var(--panel-border); flex-shrink: 0;" alt="Capa">
+                                <div class="bp3-track-text">
+                                    <span id="playerTrackTitle" class="bp3-title" style="font-size: 0.78rem;">Nenhum áudio carregado</span>
+                                    <span id="playerTrackSubtitle" class="bp3-subtitle" style="font-size: 0.62rem;">Selecione uma faixa acima</span>
+                                </div>
+                            </div>
+
+                            <!-- Seekbar -->
+                            <div class="bp3-seek-row" style="margin-bottom: 8px;">
+                                <span id="backingTimeCurrent" class="bp3-time">00:00</span>
+                                <div class="bp3-seek-track" id="customProgressBar">
+                                    <input type="range" id="backingProgressBar" min="0" max="100" value="0" style="display:none!important" disabled>
+                                    <div class="bp3-seek-fill" id="customProgressBarFill"></div>
+                                </div>
+                                <span id="backingTimeTotal" class="bp3-time bp3-time-total">00:00</span>
+                            </div>
+
+                            <!-- Transporte -->
+                            <div class="bp3-transport-row" style="margin-bottom: 8px;">
+                                <button id="btnSeekBack" class="bp3-btn" title="Voltar 10s" disabled>⏪</button>
+                                <button id="btnPlayBacking" class="bp3-btn bp3-btn-play" title="Play / Pause" disabled>▶</button>
+                                <button id="btnStopBacking" class="bp3-btn" title="Parar" disabled>⏹</button>
+                                <button id="btnSeekForward" class="bp3-btn" title="Avançar 10s" disabled>⏩</button>
+                            </div>
+
+                            <!-- Volume (Master) -->
+                            <div class="bp3-volume-row" style="margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: nowrap; overflow: hidden; width: 100%;">
+                                <div style="display: flex; align-items: center; gap: 8px; width: 120px; flex-shrink: 0;">
+                                    <span style="font-size: 1.1rem; display: flex; align-items: center;">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;">
+                                            <line x1="4" y1="21" x2="4" y2="14"></line>
+                                            <line x1="4" y1="10" x2="4" y2="3"></line>
+                                            <line x1="12" y1="21" x2="12" y2="12"></line>
+                                            <line x1="12" y1="8" x2="12" y2="3"></line>
+                                            <line x1="20" y1="21" x2="20" y2="16"></line>
+                                            <line x1="20" y1="12" x2="20" y2="3"></line>
+                                            <line x1="2" y1="14" x2="6" y2="14"></line>
+                                            <line x1="10" y1="8" x2="14" y2="8"></line>
+                                            <line x1="18" y1="16" x2="22" y2="16"></line>
+                                        </svg>
+                                    </span>
+                                    <span style="font-size: 0.78rem; color: var(--text-color); font-weight: bold;">Master</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 10px; flex-grow: 1; min-width: 100px;">
+                                    <input type="range" id="backingVolume" min="0" max="100" value="80" class="stem-volume-slider" style="width: 100%; height: 4px; padding: 0; cursor: pointer;">
+                                    <span id="backingVolumeVal" class="bp3-vol-label" style="font-size: 0.65rem; color: var(--text-muted); font-weight: bold; min-width: 45px; text-align: right; font-family: monospace;">0.0 dB</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+                                    <button id="btnPlayerMute" class="stem-mute-toggle" title="Mute/Desmutar" style="font-size: 0.7rem; padding: 4px 8px; border-radius: 6px; background: rgba(0, 255, 135, 0.08); color: #00ff87; border: 1px solid rgba(0, 255, 135, 0.2); cursor: pointer; outline: none; transition: all 0.2s ease;">
+                                        🔊 Ativo
+                                    </button>
+                                </div>
+                            </div>
+
+
+
+                            <!-- Metrônomo de Prática (Sempre Visível) -->
+                            <div class="bp3-metronome-row" style="margin-top: 6px; border-top: 1px dashed rgba(255, 255, 255, 0.08); padding-top: 10px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; width: 100%;">
+                                <div style="display: flex; align-items: center; gap: 8px; width: 140px; flex-shrink: 0;">
+                                    <span style="font-size: 1.1rem; display: flex; align-items: center;">⏱️</span>
+                                    <span style="font-size: 0.78rem; color: var(--text-color); font-weight: bold;">Metrônomo</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 10px; flex-grow: 1; min-width: 150px;">
+                                    <button id="btnMetronomeStart" class="bp3-metro-start" style="font-size: 0.7rem; padding: 4px 8px; border-radius: 6px; background: rgba(0, 255, 135, 0.08); color: #00ff87; border: 1px solid rgba(0, 255, 135, 0.2); cursor: pointer; outline: none; transition: all 0.2s ease;">
+                                        ▶ Iniciar
+                                    </button>
+                                    <div style="display: flex; align-items: center; gap: 6px;">
+                                        <input type="number" id="metronomeBpm" min="40" max="240" value="120" class="bp3-bpm-input" style="width: 46px; text-align: center; font-size: 0.7rem; height: 22px; padding: 2px;">
+                                        <span class="bp3-bpm-label">BPM</span>
+                                    </div>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+                                    <button id="btnMetronomeTap" class="bp3-metro-tap" style="font-size: 0.7rem; padding: 4px 8px; border-radius: 6px; background: var(--section-bg); color: var(--text-muted); border: 1px solid var(--panel-border); cursor: pointer; outline: none; transition: all 0.2s ease;">
+                                        🥁 Tap Tempo
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lado Direito: Mesa de Som / Mixer de Stems -->
+                    <div id="stemsMixerPanel" style="display: flex; flex-direction: column; gap: 8px; box-sizing: border-box; min-width: 420px; flex: 1.4;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; border-bottom: 1px solid var(--panel-border); padding-bottom: 6px;">
+                            <span style="font-size: 0.75rem; font-weight: bold; color: var(--primary-color);">🎚️ MIXER DE TRILHAS & STEMS</span>
+                        </div>
+                        <div id="stemsList" style="display: flex; flex-direction: column; gap: 8px; width: 100%; box-sizing: border-box;">
+                            <!-- Placeholder exibido antes de carregar as faixas -->
+                            <div id="stemsListPlaceholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 15px; text-align: center; border: 1px dashed rgba(255, 255, 255, 0.08); border-radius: 8px; background: rgba(0,0,0,0.12); width: 100%; box-sizing: border-box;">
+                                <span style="font-size: 1.5rem; margin-bottom: 8px;">🎛️</span>
+                                <span style="font-size: 0.72rem; font-weight: bold; color: var(--text-color); margin-bottom: 4px;">Nenhuma Faixa Carregada</span>
+                                <span style="font-size: 0.62rem; color: var(--text-muted); line-height: 1.4; max-width: 230px;">Arraste uma música ou clique para abrir. Você poderá pressionar Play no player imediatamente para ouvir, ou clicar em Separar para isolar as trilhas!</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Ações de Exportação (Mixagem Personalizada) -->
+                        <div class="bp3-export-row" style="margin-top: 10px; display: flex; align-items: center; gap: 8px; justify-content: space-between; width: 100%; flex-shrink: 0;">
+                            <button id="btnExportMixdown" class="bp3-btn-action" style="flex: 1; font-size: 0.72rem; padding: 8px; border-radius: 8px; background: rgba(0, 210, 255, 0.15); color: var(--primary-color); border: 1px solid rgba(0, 210, 255, 0.35); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; height: 32px; line-height: 1; font-weight: bold; transition: all 0.2s ease;" disabled>
+                                📥 Baixar Música Personalizada (Minus-One)
+                            </button>
+                        </div>
+                    </div>
+                    
+                </div>
+            </section>
+
+            <!-- 10. BIBLIOTECA DE TRILHAS (MINHAS TRILHAS) -->
+            <section class="effect-card" id="cardStemLibrary" style="grid-column: span 1;">
+                <div class="card-header">
+                    <h3 class="effect-title" style="margin: 0;">📂 MINHAS TRILHAS</h3>
+                </div>
+                <div class="card-content" style="display: flex; flex-direction: column; gap: 8px; box-sizing: border-box; height: 100%;">
+                    <!-- Lista de Faixas Separadas -->
+                    <div id="stemLibraryList" style="display: flex; flex-direction: column; gap: 6px; max-height: 380px; overflow-y: auto; width: 100%; box-sizing: border-box; padding-right: 2px;">
+                        <div id="stemLibraryEmpty" style="font-size: 0.62rem; color: var(--text-muted); text-align: center; padding: 15px 10px; border: 1px dashed rgba(255, 255, 255, 0.05); border-radius: 6px; background: rgba(0,0,0,0.06); width: 100%; box-sizing: border-box;">
+                            Nenhuma música salva na biblioteca.
+                        </div>
                     </div>
                 </div>
             </section>
-        </main>
+        </div>
+    </div>
+        </div>
+    </div>
+</main>
+
+    <!-- Modal de Documentação -->
+    <div id="docModal" class="modal">
+        <div class="modal-content" style="max-width: 800px; max-height: 85vh; overflow-y: auto;">
+            <div class="modal-header" style="border-bottom: 1px solid var(--panel-border); padding-bottom: 10px;">
+                <h2 style="margin: 0; color: var(--primary-color);">📄 Ajuda & Documentação</h2>
+                <span class="close-btn" id="closeDoc">&times;</span>
+            </div>
+            <div class="modal-body" style="padding-top: 15px; font-size: 0.8rem; line-height: 1.6; color: var(--text-color);">
+                <div id="docContent" style="display: flex; flex-direction: column; gap: 20px;">
+                    <div style="text-align: center; padding: 20px; color: var(--text-muted);">
+                        Carregando documentação...
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Modal de Configurações -->
@@ -490,6 +720,30 @@
                     <div class="settings-row" style="display: flex; gap: 6px; margin-top: 15px; grid-column: span 2;">
                         <button id="btnConnect" class="success" style="flex: 1; font-size: 0.75rem; justify-content: center; padding: 10px;">🔄 Reconectar MIDI</button>
                         <button id="btnEditorOn" style="flex: 1; font-size: 0.75rem; justify-content: center; padding: 10px;">🚀 Ativar Modo Editor</button>
+                    </div>
+                </div>
+
+                <!-- Seção Aparência & Acessibilidade -->
+                <div class="settings-section">
+                    <h3>🎨 Aparência & Acessibilidade</h3>
+                    <div class="settings-row">
+                        <label for="fontSizeSelect">Tamanho da Fonte</label>
+                        <select id="fontSizeSelect" style="width: 100%;">
+                            <option value="small">Pequeno (85%)</option>
+                            <option value="normal">Padrão (100%)</option>
+                            <option value="medium">Médio (115%)</option>
+                            <option value="large">Grande (130%)</option>
+                        </select>
+                    </div>
+                    <div class="settings-row">
+                        <label for="themeSelect">Tema do App</label>
+                        <select id="themeSelect" class="theme-select" style="width: 100%;">
+                            <option value="dark">🌌 Tema Escuro</option>
+                            <option value="light">☀️ Tema Claro</option>
+                            <option value="cyberpunk">👾 Cyberpunk Neon</option>
+                            <option value="boss">🎛️ BOSS Retro</option>
+                            <option value="tweed">🌾 Vintage Tweed</option>
+                        </select>
                     </div>
                 </div>
 
@@ -524,6 +778,10 @@
                     <div class="patch-actions" style="margin-top: 10px; display: flex; gap: 6px;">
                         <button id="btnImport" style="background: rgba(255, 255, 255, 0.05); border: 1px solid var(--panel-border); font-size: 0.75rem; flex: 1; justify-content: center; padding: 8px; font-weight: bold; cursor: pointer;">📂 Importar .SYX</button>
                         <button id="btnExport" style="background: rgba(255, 255, 255, 0.05); border: 1px solid var(--panel-border); font-size: 0.75rem; flex: 1; justify-content: center; padding: 8px; font-weight: bold; cursor: pointer;">💾 Exportar .SYX</button>
+                    </div>
+                    <div class="patch-actions" style="margin-top: 6px; display: flex; gap: 6px;">
+                        <button id="btnCopyParams" style="background: rgba(0, 210, 255, 0.05); border: 1px solid rgba(0, 210, 255, 0.2); color: #00d2ff; font-size: 0.75rem; flex: 1; justify-content: center; padding: 6px; font-weight: bold; cursor: pointer; border-radius: 4px;">📋 Copiar Código</button>
+                        <button id="btnPasteParams" style="background: rgba(0, 255, 135, 0.05); border: 1px solid rgba(0, 255, 135, 0.2); color: #00ff87; font-size: 0.75rem; flex: 1; justify-content: center; padding: 6px; font-weight: bold; cursor: pointer; border-radius: 4px;">📥 Colar Código</button>
                     </div>
                 </div>
 

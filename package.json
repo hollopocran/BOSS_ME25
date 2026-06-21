@@ -1,6 +1,6 @@
 {
   "name": "boss-me25-editor",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "BOSS ME-25 Web Editor & Librarian",
   "main": "main.js",
   "scripts": {
