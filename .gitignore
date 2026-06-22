@@ -3,6 +3,8 @@ node_modules/
 
 # Build outputs
 dist/
+build/
+engine/
 
 # Downloaded installers & drivers (large binaries)
 bts_me25_w112/
@@ -10,6 +12,7 @@ me25_w11d_v101DL/
 
 # External collections / assets
 Guitar Rig Presets Collection/
+BT/
 
 # Temporary / OS / Tool files
 .antigravitycli/
