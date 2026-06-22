@@ -208,7 +208,7 @@ button.success:hover {
 
 .app-container {
     display: grid;
-    grid-template-columns: 280px 1fr;
+    grid-template-columns: 320px 1fr;
     gap: 20px; /* Restored original sidebar gap */
     flex-grow: 1;
     height: 100% !important;
